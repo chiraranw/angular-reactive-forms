@@ -25,7 +25,13 @@ export class CustomerComponent implements OnInit {
     this.customerForm = this.formBuilder.group({
       firstName: ['', [Validators.required, Validators.minLength(3)]],
       lastName: ['', [Validators.required, Validators.maxLength(50)]],
-      email: ['', [Validators.required, Validators.email]],
+      emailGroup: this.formBuilder.group(
+        {
+          email: ['', [Validators.required, Validators.email]],
+          confirmEmail: ['', [Validators.required, Validators.email]],
+        },
+        { validators: [emailMatcher] }
+      ),
       phone: ['', [Validators.required]],
       rating: [null, [ratingValidator(1, 5)]],
       notification: ['email'],
@@ -57,4 +63,15 @@ function ratingValidator(min: number, max: number): ValidatorFn {
     }
     return null;
   };
+}
+
+function emailMatcher(c: AbstractControl): { [key: string]: boolean } | null {
+  if (c.get('email').pristine || c.get('confirmEmail').pristine) {
+    return null;
+  }
+  if (c.get('email').value !== c.get('confirmEmail').value) {
+    return { emailMatcher: true };
+  }
+
+  return null;
 }
