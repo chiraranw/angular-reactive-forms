@@ -1,6 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Customer } from './customer';
-import { NgForm, FormGroup, FormBuilder, Validators } from '@angular/forms';
+import {
+  NgForm,
+  FormGroup,
+  FormBuilder,
+  Validators,
+  FormControl,
+  AbstractControl,
+} from '@angular/forms';
 
 @Component({
   selector: 'app-customer',
@@ -18,8 +25,21 @@ export class CustomerComponent implements OnInit {
       firstName: ['', [Validators.required, Validators.minLength(3)]],
       lastName: ['', [Validators.required, Validators.maxLength(50)]],
       email: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.required]],
+      notification: ['email'],
       sendCatalog: [],
     });
+  }
+
+  setNofication(value: string): void {
+    let phoneControl: AbstractControl = this.customerForm.get('phone');
+    if (value === 'text') {
+      phoneControl.setValidators([Validators.required]);
+    } else {
+      phoneControl.clearValidators();
+    }
+
+    phoneControl.updateValueAndValidity();
   }
 
   save(customerForm): void {}
