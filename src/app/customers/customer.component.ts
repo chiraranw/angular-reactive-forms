@@ -9,6 +9,7 @@ import {
   AbstractControl,
   ValidatorFn,
 } from '@angular/forms';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-customer',
@@ -18,6 +19,12 @@ import {
 export class CustomerComponent implements OnInit {
   customerForm: FormGroup;
   customer = new Customer();
+  ///
+  emailMsg: string;
+  private emailValidationMsg = {
+    required: 'Email is required',
+    email: 'Enter valid email',
+  };
 
   constructor(private formBuilder: FormBuilder) {}
 
@@ -41,6 +48,22 @@ export class CustomerComponent implements OnInit {
     this.customerForm
       .get('notification')
       .valueChanges.subscribe((value) => this.setNofication(value));
+
+    const emailControl: AbstractControl = this.customerForm.get(
+      'emailGroup.email'
+    );
+    emailControl.valueChanges
+      .pipe(debounceTime(1000))
+      .subscribe((value) => this.setEmailValidationMsg(emailControl));
+  }
+
+  private setEmailValidationMsg(control: AbstractControl): void {
+    this.emailMsg = '';
+    if ((control.touched || control.dirty) && control.errors) {
+      this.emailMsg = Object.keys(control.errors)
+        .map((key) => this.emailValidationMsg[key])
+        .join(' ');
+    }
   }
 
   setNofication(value: string): void {
