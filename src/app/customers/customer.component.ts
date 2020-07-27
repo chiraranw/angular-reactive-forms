@@ -8,6 +8,7 @@ import {
   FormControl,
   AbstractControl,
   ValidatorFn,
+  FormArray,
 } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
 
@@ -26,6 +27,10 @@ export class CustomerComponent implements OnInit {
     email: 'Enter valid email',
   };
 
+  public get addresses(): FormArray {
+    return <FormArray>this.customerForm.get('addresses');
+  }
+
   constructor(private formBuilder: FormBuilder) {}
 
   ngOnInit(): void {
@@ -42,7 +47,8 @@ export class CustomerComponent implements OnInit {
       phone: ['', [Validators.required]],
       rating: [null, [ratingValidator(1, 5)]],
       notification: ['email'],
-      sendCatalog: [],
+      sendCatalog: [true],
+      addresses: this.formBuilder.array([this.buildAddresses()]),
     });
 
     this.customerForm
@@ -57,6 +63,19 @@ export class CustomerComponent implements OnInit {
       .subscribe((value) => this.setEmailValidationMsg(emailControl));
   }
 
+  buildAddresses(): FormGroup {
+    return this.formBuilder.group({
+      addressType: 'home',
+      street1: '',
+      street2: '',
+      city: '',
+      zip: '',
+    });
+  }
+
+  addAddresses(): void {
+    this.addresses.push(this.buildAddresses());
+  }
   private setEmailValidationMsg(control: AbstractControl): void {
     this.emailMsg = '';
     if ((control.touched || control.dirty) && control.errors) {
